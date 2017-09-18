@@ -85,22 +85,22 @@ public class CalenderItemView extends View {
                 selectDay = 1;
             }
             if (selectDay == data.day) {
-                float left = column * CalendarConfig.WIDTH;
-                float top = row * CalendarConfig.WIDTH;
-                float right = (column + 1) * CalendarConfig.WIDTH;
-                float bottom = (row + 1) * CalendarConfig.WIDTH;
+                float left = column * CalendarConfig.CELL_WIDTH;
+                float top = row * CalendarConfig.CELL_WIDTH;
+                float right = (column + 1) * CalendarConfig.CELL_WIDTH;
+                float bottom = (row + 1) * CalendarConfig.CELL_WIDTH;
                 canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
             }
 
 
-            /*float left = column * CalendarConfig.WIDTH;
-            float top = row * CalendarConfig.WIDTH;
-            float right = (column+1) * CalendarConfig.WIDTH;
-            float bottom = (row+1) * CalendarConfig.WIDTH;
+            /*float left = column * CalendarConfig.CELL_WIDTH;
+            float top = row * CalendarConfig.CELL_WIDTH;
+            float right = (column+1) * CalendarConfig.CELL_WIDTH;
+            float bottom = (row+1) * CalendarConfig.CELL_WIDTH;
             canvas.drawOval(left, top, right, bottom, mPaintNormalBg);*/
 
-            x = (CalendarConfig.WIDTH - textWidth) / 2 + column * CalendarConfig.WIDTH;
-            y = (CalendarConfig.WIDTH - fontHeight) / 2 + row * CalendarConfig.WIDTH + getResources().getDimension(R.dimen.activity_horizontal_margin);
+            x = (CalendarConfig.CELL_WIDTH - textWidth) / 2 + column * CalendarConfig.CELL_WIDTH;
+            y = (CalendarConfig.CELL_WIDTH - fontHeight) / 2 + row * CalendarConfig.CELL_WIDTH + getResources().getDimension(R.dimen.activity_horizontal_margin);
             canvas.drawText(content, x, y, mPaintNormal);
 
 

@@ -17,7 +17,7 @@ import java.util.List;
 public class CalendarView extends ViewPager {
 
     private CalendarViewAdapter adapter;
-    private int currentPosition = 0;
+    private FragmentActivity activity;
 
     public CalendarView(Context context) {
         super(context);
@@ -33,18 +33,18 @@ public class CalendarView extends ViewPager {
         }
     }
 
-    private List<CalenderItemView> list;
+    private List<CalenderItemView> itemViewList = new ArrayList<>();
 
-    private void init(FragmentActivity activity) {
+    private void init(final FragmentActivity activity) {
+        this.activity = activity;
         Resources resources = activity.getResources();
         DisplayMetrics dm = resources.getDisplayMetrics();
         int width = dm.widthPixels;
-        CalendarConfig.WIDTH = width / 7;
+        CalendarConfig.CELL_WIDTH = width / 7;
 
-        list = new ArrayList<>();
         for (int i = 0; i < CalendarConfig.COUNT; i++) {
             CalenderItemView view = new CalenderItemView(activity);
-            list.add(view);
+            itemViewList.add(view);
         }
 
         this.addOnPageChangeListener(new OnPageChangeListener() {
@@ -55,10 +55,8 @@ public class CalendarView extends ViewPager {
 
             @Override
             public void onPageSelected(final int position) {
-                currentPosition = position;
-
                 List<DateData> dateDataList = MonthWeekData.getInstance().getData(position);
-                list.get(position).setData(dateDataList);
+                itemViewList.get(position).setData(dateDataList);
 
                 DateData dateData = dateDataList.get(dateDataList.size() - 1);
                 if (monthScrollListener != null)
@@ -71,9 +69,19 @@ public class CalendarView extends ViewPager {
             }
         });
 
-        adapter = new CalendarViewAdapter(list);
+        adapter = new CalendarViewAdapter(itemViewList);
         this.setAdapter(adapter);
         this.setCurrentItem(CalendarConfig.COUNT);
+    }
+
+    private void refreshView() {
+        itemViewList.clear();
+        for (int i = 0; i < CalendarConfig.COUNT; i++) {
+            CalenderItemView view = new CalenderItemView(activity);
+            itemViewList.add(view);
+        }
+        adapter.setViews(itemViewList);
+        adapter.notifyDataSetChanged();
     }
 
     public void expand() {
@@ -105,9 +113,9 @@ public class CalendarView extends ViewPager {
 
     private int measureHeight() {
         if (CalendarConfig.IS_WEEK)
-            return CalendarConfig.WIDTH;
+            return CalendarConfig.CELL_WIDTH;
         else
-            return CalendarConfig.WIDTH * CalendarConfig.MONTH_ROW;
+            return CalendarConfig.CELL_WIDTH * CalendarConfig.MONTH_ROW;
     }
 
 }

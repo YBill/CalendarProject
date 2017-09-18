@@ -18,6 +18,10 @@ public class CalendarViewAdapter extends PagerAdapter {
         this.views = views;
     }
 
+    public void setViews(List<CalenderItemView> views) {
+        this.views = views;
+    }
+
     @Override
     public int getCount() {
         return views.size();

@@ -1,7 +1,5 @@
 package com.example.bill.calendarproject;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -15,12 +13,10 @@ public class MonthWeekData {
 
     private static MonthWeekData instance;
 
-    private List<DateData> monthContent = new ArrayList<>();
-    ;
-    private List<DateData> weekContent;
+    private List<DateData> monthList = new ArrayList<>();
+    private List<DateData> weekList;
 
     private Calendar calendar;
-    private int realPosition;
 
     public static MonthWeekData getInstance() {
         if (instance == null)
@@ -32,22 +28,21 @@ public class MonthWeekData {
         calendar = Calendar.getInstance();
     }
 
-    private void initMonthArray(int position) {
-        monthContent.clear();
+    private List<DateData> initMonthData(int position) {
+        monthList.clear();
 
         calendar.setTime(new Date());
         DateData todayData = new DateData(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
         CalendarConfig.TODAY = todayData;
 
-        int d = position + 1 - CalendarConfig.COUNT;
-        calendar.add(Calendar.MONTH, d);
+        int diff = position + 1 - CalendarConfig.COUNT;
+        calendar.add(Calendar.MONTH, diff);
 
         calendar.set(Calendar.DAY_OF_MONTH, 1);
         int firstDayWeek = calendar.get(Calendar.DAY_OF_WEEK);
         for (int i = 0; i < firstDayWeek - 1; i++) {
-            monthContent.add(new DateData());
+            monthList.add(new DateData());
         }
-
 
         int thisMonthDayNumber = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
@@ -57,8 +52,35 @@ public class MonthWeekData {
         int month = calendar.get(Calendar.MONTH) + 1;
         for (int day = 1; day < thisMonthDayNumber + 1; day++) {
             DateData addDate = new DateData(year, month, day);
-            monthContent.add(addDate);
+            monthList.add(addDate);
         }
+
+        return monthList;
+    }
+
+    private List<DateData> initWeekData(DateData selectData) {
+        weekList.clear();
+
+        if (monthList.size() > 0) {
+            int day = selectData.day;
+            int currentPosition = 0;
+            for (int i = 0; i < monthList.size(); i++) {
+                if (day == monthList.get(i).day) {
+                    currentPosition = i;
+                    break;
+                }
+            }
+            int row = currentPosition / 7;
+
+            weekList.addAll(monthList.subList(row * 7, (row + 1) * 7));
+
+            monthList.clear();
+        } else {
+
+        }
+
+
+        return weekList;
     }
 
     /**
@@ -95,13 +117,11 @@ public class MonthWeekData {
         return row;
     }
 
-    public List<DateData> getData() {
-        return monthContent;
-    }
-
     public List<DateData> getData(int position) {
-        initMonthArray(position);
-        return monthContent;
+        if (CalendarConfig.IS_WEEK) {
+            return initWeekData(null);
+        }
+        return initMonthData(position);
     }
 
 }
