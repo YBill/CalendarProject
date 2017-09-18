@@ -47,15 +47,19 @@ public class CalenderItemView extends View {
     }
 
     public void setData(List<DateData> list) {
-        this.list = list;
+        if (list != null) {
+            this.list = list;
+            invalidate();
+        }
+    }
+
+    public void refresh() {
         invalidate();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (list.size() < 1)
-            return;
         int length = list.size();
         int row, column = 0;
         float x, y;
@@ -74,7 +78,7 @@ public class CalenderItemView extends View {
             }
 
             x = (CellConfig.WIDTH - textWidth) / 2 + column * CellConfig.WIDTH;
-            y = (CellConfig.WIDTH - fontHeight) / 2 + row * CellConfig.WIDTH+ getResources().getDimension(R.dimen.activity_horizontal_margin);
+            y = (CellConfig.WIDTH - fontHeight) / 2 + row * CellConfig.WIDTH + getResources().getDimension(R.dimen.activity_horizontal_margin);
 
             /*float left = column * CellConfig.WIDTH;
             float top = row * CellConfig.WIDTH;

@@ -18,6 +18,7 @@ import java.util.List;
 public class CalendarView extends ViewPager {
 
     private CalendarViewAdapter adapter;
+    private int currentPosition = 0;
 
     public CalendarView(Context context) {
         super(context);
@@ -55,8 +56,14 @@ public class CalendarView extends ViewPager {
 
             @Override
             public void onPageSelected(final int position) {
+                currentPosition = position;
+
                 List<DateData> dateDataList = MonthWeekData.getInstance().getData(position);
                 list.get(position).setData(dateDataList);
+
+                DateData dateData = dateDataList.get(dateDataList.size() - 1);
+                if (monthScrollListener != null)
+                    monthScrollListener.onMonthChange(dateData.year, dateData.month);
             }
 
             @Override
@@ -70,19 +77,39 @@ public class CalendarView extends ViewPager {
         this.setCurrentItem(CellConfig.COUNT);
     }
 
+    public void expand() {
+        CellConfig.IS_WEEK = false;
+        this.requestLayout();
+    }
+
+    public void shrink() {
+        CellConfig.IS_WEEK = true;
+        this.requestLayout();
+    }
+
+    private MonthScrollListener monthScrollListener;
+
+    public void setMonthScrollListener(MonthScrollListener monthScrollListener) {
+        this.monthScrollListener = monthScrollListener;
+    }
+
+    public interface MonthScrollListener {
+        void onMonthChange(int year, int month);
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        Log.e("Bill", "onMeasure");
         int height = measureHeight();
         heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     private int measureHeight() {
-//        if (CellConfig.ifMonth)
-            return (int) (CellConfig.WIDTH * 5);
-//        else
-//            return (int) (CellConfig.cellHeight * density);
+        Log.e("Bill", "CellConfig.IS_WEEK:" + CellConfig.IS_WEEK);
+        if (CellConfig.IS_WEEK)
+            return CellConfig.WIDTH;
+        else
+            return CellConfig.WIDTH * CellConfig.MONTH_ROW;
     }
 
 }

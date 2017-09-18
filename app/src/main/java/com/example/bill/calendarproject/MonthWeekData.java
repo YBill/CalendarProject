@@ -48,24 +48,51 @@ public class MonthWeekData {
             monthContent.add(new DateData());
         }
 
+
         int thisMonthDayNumber = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        int aa = thisMonthDayNumber - 29;
-        // -1 0 1 2
-        if (aa == -1) {
+        CellConfig.MONTH_ROW = calculateMonthRow(firstDayWeek, thisMonthDayNumber);
 
-        } else {
-            int bb = firstDayWeek + aa;
-            if (bb > 7) {
-                CellConfig.MONTH_ROW = 5;
-            }
-        }
-
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
         for (int day = 1; day < thisMonthDayNumber + 1; day++) {
-            DateData addDate = new DateData(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, day);
+            DateData addDate = new DateData(year, month, day);
             monthContent.add(addDate);
         }
-        Log.e("Bill", "+++++++++++++");
+    }
+
+    /**
+     * 计算每个月占几行
+     *
+     * @param firstDayWeek
+     * @param thisMonthDayNumber
+     * @return
+     */
+    private int calculateMonthRow(int firstDayWeek, int thisMonthDayNumber) {
+        int _28_week_num = firstDayWeek - 1; // 计算28号是星期几
+        if (_28_week_num == 0)
+            _28_week_num = 7;
+
+        int diff_28 = thisMonthDayNumber - 28; // 总天数-28
+
+        int total_28_diff = _28_week_num + diff_28; // 计算剩余天数有没有超过一行
+
+        int row;
+        if (_28_week_num == 7) {
+            // 28号在周六上了
+            if (diff_28 == 0) {
+                row = 4;
+            } else {
+                row = 5;
+            }
+        } else {
+            if (total_28_diff > 7) {
+                row = 6;
+            } else {
+                row = 5;
+            }
+        }
+        return row;
     }
 
     public List<DateData> getData() {
