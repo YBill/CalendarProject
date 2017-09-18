@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -48,13 +49,34 @@ public class CalenderItemView extends View {
 
         mPaintSelectBg = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaintSelectBg.setColor(Color.parseColor("#ff4259"));
+
+        clear();
     }
 
     public void setData(List<DateData> list) {
         if (list != null) {
+            clear();
             this.list = list;
             invalidate();
         }
+    }
+
+    int currentX;
+    int currentY;
+
+    private void clear() {
+        currentX = -1;
+        currentY = -1;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            currentX = (int) event.getX();
+            currentY = (int) event.getY();
+            invalidate();
+        }
+        return true;
     }
 
     @Override
@@ -78,18 +100,32 @@ public class CalenderItemView extends View {
                 column = 0;
             }
 
-            int selectDay; // 选中背景
-            if (data.year == today.year && data.month == today.month) {
-                selectDay = today.day;
+
+            if (currentX > 0 && currentY > 0) {
+                int pressColumn = currentX / CalendarConfig.CELL_WIDTH;
+                int pressRow = currentY / CalendarConfig.CELL_WIDTH;
+                int selectDay = pressRow * 7 + (pressColumn + 1);
+                if (selectDay - 1 == i) {
+                    float left = pressColumn * CalendarConfig.CELL_WIDTH;
+                    float top = pressRow * CalendarConfig.CELL_WIDTH;
+                    float right = (pressColumn + 1) * CalendarConfig.CELL_WIDTH;
+                    float bottom = (pressRow + 1) * CalendarConfig.CELL_WIDTH;
+                    canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
+                }
             } else {
-                selectDay = 1;
-            }
-            if (selectDay == data.day) {
-                float left = column * CalendarConfig.CELL_WIDTH;
-                float top = row * CalendarConfig.CELL_WIDTH;
-                float right = (column + 1) * CalendarConfig.CELL_WIDTH;
-                float bottom = (row + 1) * CalendarConfig.CELL_WIDTH;
-                canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
+                int selectDay; // 选中背景
+                if (data.year == today.year && data.month == today.month) {
+                    selectDay = today.day;
+                } else {
+                    selectDay = 1;
+                }
+                if (selectDay == data.day) {
+                    float left = column * CalendarConfig.CELL_WIDTH;
+                    float top = row * CalendarConfig.CELL_WIDTH;
+                    float right = (column + 1) * CalendarConfig.CELL_WIDTH;
+                    float bottom = (row + 1) * CalendarConfig.CELL_WIDTH;
+                    canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
+                }
             }
 
 
