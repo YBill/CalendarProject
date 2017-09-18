@@ -35,11 +35,11 @@ public class MonthWeekData {
     private void initMonthArray(int position) {
         monthContent.clear();
 
-        Log.e("Bill", "position+:" + position);
-
         calendar.setTime(new Date());
+        DateData todayData = new DateData(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
+        CalendarConfig.TODAY = todayData;
 
-        int d = position + 1 - CellConfig.COUNT;
+        int d = position + 1 - CalendarConfig.COUNT;
         calendar.add(Calendar.MONTH, d);
 
         calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -51,7 +51,7 @@ public class MonthWeekData {
 
         int thisMonthDayNumber = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        CellConfig.MONTH_ROW = calculateMonthRow(firstDayWeek, thisMonthDayNumber);
+        CalendarConfig.MONTH_ROW = calculateMonthRow(firstDayWeek, thisMonthDayNumber);
 
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;

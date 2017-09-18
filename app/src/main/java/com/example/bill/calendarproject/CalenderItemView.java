@@ -21,6 +21,7 @@ public class CalenderItemView extends View {
 
     private Paint mPaintNormal;
     private Paint mPaintNormalBg;
+    private Paint mPaintSelectBg;
 
     public CalenderItemView(Context context) {
         super(context);
@@ -39,11 +40,14 @@ public class CalenderItemView extends View {
 
     private void init(Context context) {
         mPaintNormal = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaintNormal.setColor(Color.BLACK);
+        mPaintNormal.setColor(Color.parseColor("#000000"));//dcdcdc
         mPaintNormal.setTextSize(getResources().getDimension(R.dimen.si_default_text_size));
 
         mPaintNormalBg = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaintNormalBg.setColor(Color.RED);
+
+        mPaintSelectBg = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaintSelectBg.setColor(Color.parseColor("#ff4259"));
     }
 
     public void setData(List<DateData> list) {
@@ -53,20 +57,17 @@ public class CalenderItemView extends View {
         }
     }
 
-    public void refresh() {
-        invalidate();
-    }
-
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        DateData today = CalendarConfig.TODAY;
         int length = list.size();
         int row, column = 0;
         float x, y;
         for (int i = 0; i < length; i++) {
-            DateData date = list.get(i);
+            DateData data = list.get(i);
 
-            String content = String.valueOf(date.day);
+            String content = String.valueOf(data.day);
             Paint.FontMetrics fontMetrics = mPaintNormal.getFontMetrics();
             float fontHeight = fontMetrics.bottom - fontMetrics.top;
             float textWidth = mPaintNormal.measureText(content);
@@ -77,16 +78,32 @@ public class CalenderItemView extends View {
                 column = 0;
             }
 
-            x = (CellConfig.WIDTH - textWidth) / 2 + column * CellConfig.WIDTH;
-            y = (CellConfig.WIDTH - fontHeight) / 2 + row * CellConfig.WIDTH + getResources().getDimension(R.dimen.activity_horizontal_margin);
+            int selectDay; // 选中背景
+            if (data.year == today.year && data.month == today.month) {
+                selectDay = today.day;
+            } else {
+                selectDay = 1;
+            }
+            if (selectDay == data.day) {
+                float left = column * CalendarConfig.WIDTH;
+                float top = row * CalendarConfig.WIDTH;
+                float right = (column + 1) * CalendarConfig.WIDTH;
+                float bottom = (row + 1) * CalendarConfig.WIDTH;
+                canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
+            }
 
-            /*float left = column * CellConfig.WIDTH;
-            float top = row * CellConfig.WIDTH;
-            float right = (column+1) * CellConfig.WIDTH;
-            float bottom = (row+1) * CellConfig.WIDTH;
+
+            /*float left = column * CalendarConfig.WIDTH;
+            float top = row * CalendarConfig.WIDTH;
+            float right = (column+1) * CalendarConfig.WIDTH;
+            float bottom = (row+1) * CalendarConfig.WIDTH;
             canvas.drawOval(left, top, right, bottom, mPaintNormalBg);*/
 
-            canvas.drawText("" + date.day, x, y, mPaintNormal);
+            x = (CalendarConfig.WIDTH - textWidth) / 2 + column * CalendarConfig.WIDTH;
+            y = (CalendarConfig.WIDTH - fontHeight) / 2 + row * CalendarConfig.WIDTH + getResources().getDimension(R.dimen.activity_horizontal_margin);
+            canvas.drawText(content, x, y, mPaintNormal);
+
+
         }
     }
 }

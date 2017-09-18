@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +39,10 @@ public class CalendarView extends ViewPager {
         Resources resources = activity.getResources();
         DisplayMetrics dm = resources.getDisplayMetrics();
         int width = dm.widthPixels;
-        CellConfig.WIDTH = width / 7;
+        CalendarConfig.WIDTH = width / 7;
 
         list = new ArrayList<>();
-        for (int i = 0; i < CellConfig.COUNT; i++) {
+        for (int i = 0; i < CalendarConfig.COUNT; i++) {
             CalenderItemView view = new CalenderItemView(activity);
             list.add(view);
         }
@@ -74,16 +73,16 @@ public class CalendarView extends ViewPager {
 
         adapter = new CalendarViewAdapter(list);
         this.setAdapter(adapter);
-        this.setCurrentItem(CellConfig.COUNT);
+        this.setCurrentItem(CalendarConfig.COUNT);
     }
 
     public void expand() {
-        CellConfig.IS_WEEK = false;
+        CalendarConfig.IS_WEEK = false;
         this.requestLayout();
     }
 
     public void shrink() {
-        CellConfig.IS_WEEK = true;
+        CalendarConfig.IS_WEEK = true;
         this.requestLayout();
     }
 
@@ -105,11 +104,10 @@ public class CalendarView extends ViewPager {
     }
 
     private int measureHeight() {
-        Log.e("Bill", "CellConfig.IS_WEEK:" + CellConfig.IS_WEEK);
-        if (CellConfig.IS_WEEK)
-            return CellConfig.WIDTH;
+        if (CalendarConfig.IS_WEEK)
+            return CalendarConfig.WIDTH;
         else
-            return CellConfig.WIDTH * CellConfig.MONTH_ROW;
+            return CalendarConfig.WIDTH * CalendarConfig.MONTH_ROW;
     }
 
 }
