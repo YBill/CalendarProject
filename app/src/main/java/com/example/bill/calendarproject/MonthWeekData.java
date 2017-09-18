@@ -58,8 +58,10 @@ public class MonthWeekData {
         return monthList;
     }
 
-    private List<DateData> initWeekData(DateData selectData) {
+    private List<DateData> initWeekData(int position) {
         weekList.clear();
+
+        DateData selectData = CalendarConfig.SELECT_DAY;
 
         if (monthList.size() > 0) {
             int day = selectData.day;
@@ -119,7 +121,7 @@ public class MonthWeekData {
 
     public List<DateData> getData(int position) {
         if (CalendarConfig.IS_WEEK) {
-            return initWeekData(null);
+            return initWeekData(position);
         }
         return initMonthData(position);
     }
