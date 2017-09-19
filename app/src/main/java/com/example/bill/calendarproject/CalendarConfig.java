@@ -4,7 +4,7 @@ package com.example.bill.calendarproject;
  * Created by Bill on 2017/9/16.
  */
 public class CalendarConfig {
-    public static int COUNT = Integer.MAX_VALUE; // 总页数（总月数）
+    public static int COUNT = 1000000000; // 总页数（总月数）
     public static int CELL_WIDTH; // 每个日的宽高
     public static int MONTH_ROW = 5; // 每个月的总行数
     public static boolean IS_WEEK = false; // 是不是只显示星期

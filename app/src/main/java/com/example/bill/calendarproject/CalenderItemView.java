@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -111,6 +112,8 @@ public class CalenderItemView extends View {
                     float right = (pressColumn + 1) * CalendarConfig.CELL_WIDTH;
                     float bottom = (pressRow + 1) * CalendarConfig.CELL_WIDTH;
                     canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
+                    CalendarConfig.SELECT_DAY = new DateData(data.year, data.month, data.day);
+                    Log.e("Bill", "::" + CalendarConfig.SELECT_DAY.toString());
                 }
             } else {
                 int selectDay; // 选中背景
@@ -125,6 +128,8 @@ public class CalenderItemView extends View {
                     float right = (column + 1) * CalendarConfig.CELL_WIDTH;
                     float bottom = (row + 1) * CalendarConfig.CELL_WIDTH;
                     canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
+                    CalendarConfig.SELECT_DAY = new DateData(data.year, data.month, data.day);
+                    Log.e("Bill", "::" + CalendarConfig.SELECT_DAY.toString());
                 }
             }
 

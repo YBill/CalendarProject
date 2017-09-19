@@ -2,13 +2,14 @@ package com.example.bill.calendarproject;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MotionEvent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,6 +20,7 @@ public class CalendarView extends ViewPager {
 
     private CalendarViewAdapter adapter;
     private FragmentActivity activity;
+    private List<DateData> dateDataList;
 
     public CalendarView(Context context) {
         super(context);
@@ -34,19 +36,12 @@ public class CalendarView extends ViewPager {
         }
     }
 
-//    private List<CalenderItemView> itemViewList = new ArrayList<>();
-
     private void init(final FragmentActivity activity) {
         this.activity = activity;
         Resources resources = activity.getResources();
         DisplayMetrics dm = resources.getDisplayMetrics();
         int width = dm.widthPixels;
         CalendarConfig.CELL_WIDTH = width / 7;
-
-        /*for (int i = 0; i < CalendarConfig.COUNT; i++) {
-            CalenderItemView view = new CalenderItemView(activity);
-            itemViewList.add(view);
-        }*/
 
         this.addOnPageChangeListener(new OnPageChangeListener() {
             @Override
@@ -57,13 +52,10 @@ public class CalendarView extends ViewPager {
             @Override
             public void onPageSelected(final int position) {
                 Log.e("Bill", "position:" + position);
-                List<DateData> dateDataList = MonthWeekData.getInstance().getData(position);
-//                itemViewList.get(position).setData(dateDataList);
+                dateDataList = MonthWeekData.getInstance().getData(position);
+                setCalendarData(position);
 
-
-                DateData dateData = dateDataList.get(dateDataList.size() - 1);
-                if (monthScrollListener != null)
-                    monthScrollListener.onMonthChange(dateData.year, dateData.month);
+                setListener();
             }
 
             @Override
@@ -77,15 +69,33 @@ public class CalendarView extends ViewPager {
         setCurrentItem(CalendarConfig.COUNT / 2, false);
     }
 
-    /*private void refreshView() {
-        itemViewList.clear();
-        for (int i = 0; i < CalendarConfig.COUNT; i++) {
-            CalenderItemView view = new CalenderItemView(activity);
-            itemViewList.add(view);
+    // 为日历设置数据
+    private void setCalendarData(final int position) {
+        if (adapter.getCalendarView(position) != null) {
+            adapter.getCalendarView(position).setData(dateDataList);
+        } else {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setCalendarData(position);
+                }
+            }, 50);
         }
-        adapter.setViews(itemViewList);
-        adapter.notifyDataSetChanged();
-    }*/
+    }
+
+    private void setListener() {
+        if (monthScrollListener != null) {
+            DateData dateData = dateDataList.get(dateDataList.size() - 1);
+            monthScrollListener.onMonthChange(dateData.year, dateData.month);
+        } else {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setListener();
+                }
+            }, 50);
+        }
+    }
 
     public void expand() {
         CalendarConfig.IS_WEEK = false;
@@ -105,6 +115,30 @@ public class CalendarView extends ViewPager {
 
     public interface MonthScrollListener {
         void onMonthChange(int year, int month);
+    }
+
+    private float beforeX;
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                beforeX = ev.getX();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float motionValue = ev.getX() - beforeX;
+                if (motionValue < 0) { // 左滑
+                    DateData selectData = CalendarConfig.SELECT_DAY;
+                    DateData today = CalendarConfig.TODAY;
+                    if (selectData.year == today.year && selectData.month == today.month)
+                        return true;
+                }
+                beforeX = ev.getX();
+                break;
+            default:
+                break;
+        }
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override

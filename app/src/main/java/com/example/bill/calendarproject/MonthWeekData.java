@@ -35,7 +35,7 @@ public class MonthWeekData {
         DateData todayData = new DateData(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
         CalendarConfig.TODAY = todayData;
 
-        int diff = position + 1 - CalendarConfig.COUNT / 2;
+        int diff = position - CalendarConfig.COUNT / 2;
         calendar.add(Calendar.MONTH, diff);
 
         calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -83,6 +83,11 @@ public class MonthWeekData {
 
 
         return weekList;
+    }
+
+    public void test() {
+        DateData data = CalendarConfig.SELECT_DAY;
+        calendar.set(data.year, data.month, data.day);
     }
 
     /**

@@ -19,4 +19,12 @@ public class DateData {
     public DateData() {
     }
 
+    @Override
+    public String toString() {
+        return "DateData{" +
+                "year=" + year +
+                ", month=" + month +
+                ", day=" + day +
+                '}';
+    }
 }

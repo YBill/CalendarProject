@@ -2,12 +2,11 @@ package com.example.bill.calendarproject;
 
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by Bill on 2017/9/17.
@@ -17,9 +16,14 @@ public class CalendarViewAdapter extends PagerAdapter {
 
     private Context context;
     private LinkedList<CalenderItemView> cache = new LinkedList();
+    private HashMap<Integer, CalenderItemView> views = new HashMap<>();
 
     public CalendarViewAdapter(Context context) {
         this.context = context;
+    }
+
+    public CalenderItemView getCalendarView(int position) {
+        return views.get(position);
     }
 
     @Override
@@ -48,9 +52,7 @@ public class CalendarViewAdapter extends PagerAdapter {
             view = new CalenderItemView(context);
         }
         container.addView(view);
-        List<DateData> dateDataList = MonthWeekData.getInstance().getData(position);
-        view.setData(dateDataList);
-        Log.e("Bill", "instantiateItem:" + position);
+        views.put(position, view);
         return view;
     }
 
@@ -62,7 +64,7 @@ public class CalendarViewAdapter extends PagerAdapter {
         // 删除
         container.removeView((View) object);
         cache.addLast((CalenderItemView) object);
-        Log.e("Bill", "destroyItem:" + cache.size());
+        views.remove(position);
     }
 
 }
