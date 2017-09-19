@@ -47,4 +47,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
+    public void handleClick(View view) {
+        MonthWeekData.getInstance().test();
+    }
+
 }

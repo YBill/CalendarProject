@@ -21,6 +21,7 @@ public class CalendarView extends ViewPager {
     private CalendarViewAdapter adapter;
     private FragmentActivity activity;
     private List<DateData> dateDataList;
+    private int currentPosition;
 
     public CalendarView(Context context) {
         super(context);
@@ -52,10 +53,11 @@ public class CalendarView extends ViewPager {
             @Override
             public void onPageSelected(final int position) {
                 Log.e("Bill", "position:" + position);
+                currentPosition = position;
                 dateDataList = MonthWeekData.getInstance().getData(position);
                 setCalendarData(position);
 
-                setListener();
+                setCallback();
             }
 
             @Override
@@ -83,7 +85,7 @@ public class CalendarView extends ViewPager {
         }
     }
 
-    private void setListener() {
+    private void setCallback() {
         if (monthScrollListener != null) {
             DateData dateData = dateDataList.get(dateDataList.size() - 1);
             monthScrollListener.onMonthChange(dateData.year, dateData.month);
@@ -91,7 +93,7 @@ public class CalendarView extends ViewPager {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    setListener();
+                    setCallback();
                 }
             }, 50);
         }
@@ -105,6 +107,7 @@ public class CalendarView extends ViewPager {
     public void shrink() {
         CalendarConfig.IS_WEEK = true;
         this.requestLayout();
+//        adapter.getCalendarView(currentPosition).setData(MonthWeekData.getInstance().getData(0));
     }
 
     private MonthScrollListener monthScrollListener;

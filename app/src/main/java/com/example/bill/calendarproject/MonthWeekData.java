@@ -1,5 +1,7 @@
 package com.example.bill.calendarproject;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,7 +16,7 @@ public class MonthWeekData {
     private static MonthWeekData instance;
 
     private List<DateData> monthList = new ArrayList<>();
-    private List<DateData> weekList;
+    private List<DateData> weekList = new ArrayList<>();
 
     private Calendar calendar;
 
@@ -40,11 +42,13 @@ public class MonthWeekData {
 
         calendar.set(Calendar.DAY_OF_MONTH, 1);
         int firstDayWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        Log.e("Bill", "firstDayWeek:" + firstDayWeek);
         for (int i = 0; i < firstDayWeek - 1; i++) {
             monthList.add(new DateData());
         }
 
         int thisMonthDayNumber = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        Log.e("Bill", "thisMonthDayNumber:" + thisMonthDayNumber);
 
         CalendarConfig.MONTH_ROW = calculateMonthRow(firstDayWeek, thisMonthDayNumber);
 
@@ -61,9 +65,10 @@ public class MonthWeekData {
     private List<DateData> initWeekData(int position) {
         weekList.clear();
 
-        DateData selectData = CalendarConfig.SELECT_DAY;
+        if (position > 0) {
 
-        if (monthList.size() > 0) {
+        } else {
+            DateData selectData = CalendarConfig.SELECT_DAY;
             int day = selectData.day;
             int currentPosition = 0;
             for (int i = 0; i < monthList.size(); i++) {
@@ -73,21 +78,24 @@ public class MonthWeekData {
                 }
             }
             int row = currentPosition / 7;
-
             weekList.addAll(monthList.subList(row * 7, (row + 1) * 7));
-
-            monthList.clear();
-        } else {
-
         }
-
 
         return weekList;
     }
 
     public void test() {
         DateData data = CalendarConfig.SELECT_DAY;
-        calendar.set(data.year, data.month, data.day);
+        calendar.set(data.year, data.month - 1, data.day);
+        Log.e("Bill", calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH) + "-" + calendar.get(Calendar.DAY_OF_MONTH));
+        int firstDayWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        Log.e("Bill", "firstDayWeek:" + firstDayWeek);
+        int thisMonthDayNumber = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        Log.e("Bill", "thisMonthDayNumber:" + thisMonthDayNumber);
+
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        int firstDayWeek2 = calendar.get(Calendar.DAY_OF_WEEK);
+        Log.e("Bill", "firstDayWeek2:" + firstDayWeek2);
     }
 
     /**
