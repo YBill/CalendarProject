@@ -10,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -22,6 +23,7 @@ public class CalendarView extends ViewPager {
     private FragmentActivity activity;
     private List<DateData> dateDataList;
     private int currentPosition;
+    private int diffPosition = 0;
 
     public CalendarView(Context context) {
         super(context);
@@ -43,6 +45,21 @@ public class CalendarView extends ViewPager {
         DisplayMetrics dm = resources.getDisplayMetrics();
         int width = dm.widthPixels;
         CalendarConfig.CELL_WIDTH = width / 7;
+        CalendarConfig.TODAY = new DateData(
+                Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH) + 1, Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+        CalendarConfig.SELECT_DAY = CalendarConfig.TODAY;
+        CalendarConfig.SELECT_MONTH = CalendarConfig.TODAY;
+        CalendarConfig.IS_WEEK = false;
+
+        adapter = new CalendarViewAdapter(activity);
+        this.setAdapter(adapter);
+        currentPosition = CalendarConfig.COUNT / 2;
+        setCurrentItem(currentPosition, false);
+
+        CalendarConfig.iSScroll = false;
+        dateDataList = MonthWeekData.getInstance().getData(0);
+        setCalendarData(currentPosition);
+        setCallback();
 
         this.addOnPageChangeListener(new OnPageChangeListener() {
             @Override
@@ -53,11 +70,18 @@ public class CalendarView extends ViewPager {
             @Override
             public void onPageSelected(final int position) {
                 Log.e("Bill", "position:" + position);
+                if (position > currentPosition) {
+                    diffPosition = 1;
+                } else {
+                    diffPosition = -1;
+                }
                 currentPosition = position;
-                dateDataList = MonthWeekData.getInstance().getData(position);
-                setCalendarData(position);
-
-                setCallback();
+                CalendarConfig.iSScroll = true;
+                dateDataList = MonthWeekData.getInstance().getData(diffPosition);
+                adapter.getCalendarView(position).setData(dateDataList);
+                if (monthScrollListener != null) {
+                    monthScrollListener.onMonthChange(CalendarConfig.SELECT_MONTH.year, CalendarConfig.SELECT_MONTH.month);
+                }
             }
 
             @Override
@@ -65,10 +89,6 @@ public class CalendarView extends ViewPager {
 
             }
         });
-
-        adapter = new CalendarViewAdapter(activity);
-        this.setAdapter(adapter);
-        setCurrentItem(CalendarConfig.COUNT / 2, false);
     }
 
     // 为日历设置数据
@@ -87,8 +107,7 @@ public class CalendarView extends ViewPager {
 
     private void setCallback() {
         if (monthScrollListener != null) {
-            DateData dateData = dateDataList.get(dateDataList.size() - 1);
-            monthScrollListener.onMonthChange(dateData.year, dateData.month);
+            monthScrollListener.onMonthChange(CalendarConfig.SELECT_MONTH.year, CalendarConfig.SELECT_MONTH.month);
         } else {
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -101,13 +120,16 @@ public class CalendarView extends ViewPager {
 
     public void expand() {
         CalendarConfig.IS_WEEK = false;
+        CalendarConfig.iSScroll = false;
         this.requestLayout();
+        adapter.getCalendarView(currentPosition).setData(MonthWeekData.getInstance().getData(0));
     }
 
     public void shrink() {
         CalendarConfig.IS_WEEK = true;
+        CalendarConfig.iSScroll = false;
         this.requestLayout();
-//        adapter.getCalendarView(currentPosition).setData(MonthWeekData.getInstance().getData(0));
+        adapter.getCalendarView(currentPosition).setData(MonthWeekData.getInstance().getData(0));
     }
 
     private MonthScrollListener monthScrollListener;
@@ -124,6 +146,9 @@ public class CalendarView extends ViewPager {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
+        if(CalendarConfig.IS_WEEK) {
+            return true;
+        }
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 beforeX = ev.getX();
@@ -131,7 +156,7 @@ public class CalendarView extends ViewPager {
             case MotionEvent.ACTION_MOVE:
                 float motionValue = ev.getX() - beforeX;
                 if (motionValue < 0) { // 左滑
-                    DateData selectData = CalendarConfig.SELECT_DAY;
+                    DateData selectData = CalendarConfig.SELECT_MONTH;
                     DateData today = CalendarConfig.TODAY;
                     if (selectData.year == today.year && selectData.month == today.month)
                         return true;

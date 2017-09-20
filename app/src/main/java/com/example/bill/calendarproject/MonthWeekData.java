@@ -4,7 +4,6 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,30 +32,52 @@ public class MonthWeekData {
     private List<DateData> initMonthData(int position) {
         monthList.clear();
 
-        calendar.setTime(new Date());
-        DateData todayData = new DateData(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
-        CalendarConfig.TODAY = todayData;
+        if (CalendarConfig.iSScroll) {
+            calendar.add(Calendar.MONTH, position);
 
-        int diff = position - CalendarConfig.COUNT / 2;
-        calendar.add(Calendar.MONTH, diff);
+            CalendarConfig.SELECT_MONTH = new DateData(
+                    calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, 0);
 
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        int firstDayWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        Log.e("Bill", "firstDayWeek:" + firstDayWeek);
-        for (int i = 0; i < firstDayWeek - 1; i++) {
-            monthList.add(new DateData());
-        }
+            calendar.set(Calendar.DAY_OF_MONTH, 1);
+            int firstDayWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            for (int i = 0; i < firstDayWeek - 1; i++) {
+                monthList.add(new DateData());
+            }
 
-        int thisMonthDayNumber = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-        Log.e("Bill", "thisMonthDayNumber:" + thisMonthDayNumber);
+            int thisMonthDayNumber = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        CalendarConfig.MONTH_ROW = calculateMonthRow(firstDayWeek, thisMonthDayNumber);
+            CalendarConfig.MONTH_ROW = calculateMonthRow(firstDayWeek, thisMonthDayNumber);
 
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        for (int day = 1; day < thisMonthDayNumber + 1; day++) {
-            DateData addDate = new DateData(year, month, day);
-            monthList.add(addDate);
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH) + 1;
+            for (int day = 1; day < thisMonthDayNumber + 1; day++) {
+                DateData addDate = new DateData(year, month, day);
+                monthList.add(addDate);
+            }
+
+        } else {
+            DateData selectData = CalendarConfig.SELECT_DAY;
+            calendar.set(selectData.year, selectData.month - 1, selectData.day);
+
+            CalendarConfig.SELECT_MONTH = new DateData(
+                    Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH) + 1, 0);
+
+            calendar.set(Calendar.DAY_OF_MONTH, 1);
+            int firstDayWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            for (int i = 0; i < firstDayWeek - 1; i++) {
+                monthList.add(new DateData());
+            }
+
+            int thisMonthDayNumber = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+            CalendarConfig.MONTH_ROW = calculateMonthRow(firstDayWeek, thisMonthDayNumber);
+
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH) + 1;
+            for (int day = 1; day < thisMonthDayNumber + 1; day++) {
+                DateData addDate = new DateData(year, month, day);
+                monthList.add(addDate);
+            }
         }
 
         return monthList;
@@ -64,23 +85,45 @@ public class MonthWeekData {
 
     private List<DateData> initWeekData(int position) {
         weekList.clear();
-
-        if (position > 0) {
-
-        } else {
-            DateData selectData = CalendarConfig.SELECT_DAY;
-            int day = selectData.day;
-            int currentPosition = 0;
-            for (int i = 0; i < monthList.size(); i++) {
-                if (day == monthList.get(i).day) {
-                    currentPosition = i;
-                    break;
+        DateData selectData = CalendarConfig.SELECT_DAY;
+        calendar.set(selectData.year, selectData.month - 1, selectData.day);
+        int thisMonthDayNumber = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        int thisDayWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        int firstDay = selectData.day - thisDayWeek + 1;
+        if (firstDay > 0) {
+            int diffTwoMonth = firstDay + 6 - thisMonthDayNumber;
+            if (diffTwoMonth <= 0) {
+                // 本月数据
+                for (int i = 0; i < 7; i++) {
+                    DateData data = new DateData(selectData.year, selectData.month, firstDay + i);
+                    weekList.add(data);
+                }
+            } else {
+                // + 下个月
+                for (int i = 0; i < 7 - diffTwoMonth; i++) {
+                    DateData data = new DateData(selectData.year, selectData.month, firstDay + i);
+                    weekList.add(data);
+                }
+                calendar.add(Calendar.MONTH, 1);
+                for (int i = 0; i < diffTwoMonth; i++) {
+                    DateData data = new DateData(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, i + 1);
+                    weekList.add(data);
                 }
             }
-            int row = currentPosition / 7;
-            weekList.addAll(monthList.subList(row * 7, (row + 1) * 7));
+        } else {
+            //+上个月
+            calendar.add(Calendar.MONTH, -1);
+            int preMonthDayNumber = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+            int length = 1 - firstDay;
+            for (int i = 0; i < length; i++) {
+                DateData data = new DateData(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, preMonthDayNumber - length + 1 + i);
+                weekList.add(data);
+            }
+            for (int i = 0; i < 7 - length; i++) {
+                DateData data = new DateData(selectData.year, selectData.month, i + 1);
+                weekList.add(data);
+            }
         }
-
         return weekList;
     }
 

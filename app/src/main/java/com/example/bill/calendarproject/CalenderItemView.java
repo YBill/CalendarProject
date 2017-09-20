@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -62,20 +61,34 @@ public class CalenderItemView extends View {
         }
     }
 
-    int currentX;
-    int currentY;
+    int downX;
+    int downY;
+    long currentMS;
+    int pressColumn;
+    int pressRow;
 
     private void clear() {
-        currentX = -1;
-        currentY = -1;
+        pressRow = -1;
+        pressColumn = -1;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            currentX = (int) event.getX();
-            currentY = (int) event.getY();
-            invalidate();
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            downX = (int) event.getX();
+            downY = (int) event.getY();
+            currentMS = System.currentTimeMillis();
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            long moveTime = System.currentTimeMillis() - currentMS;
+            if (moveTime < 200 && (Math.abs(event.getX() - downX) < 20 && Math.abs(event.getY() - downY) < 20)) {
+                pressRow = (int) (event.getY() / CalendarConfig.CELL_WIDTH);
+                pressColumn = (int) (event.getX() / CalendarConfig.CELL_WIDTH);
+                if ((7 * pressRow + pressColumn + 1 - list.size() > 0) || (list.get(7 * pressRow + pressColumn).day == 0)) {
+                    clear();
+                } else {
+                    invalidate();
+                }
+            }
         }
         return true;
     }
@@ -83,7 +96,6 @@ public class CalenderItemView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        DateData today = CalendarConfig.TODAY;
         int length = list.size();
         int row, column = 0;
         float x, y;
@@ -101,10 +113,7 @@ public class CalenderItemView extends View {
                 column = 0;
             }
 
-
-            if (currentX > 0 && currentY > 0) {
-                int pressColumn = currentX / CalendarConfig.CELL_WIDTH;
-                int pressRow = currentY / CalendarConfig.CELL_WIDTH;
+            if (pressRow >= 0 && pressColumn >= 0) {
                 int selectDay = pressRow * 7 + (pressColumn + 1);
                 if (selectDay - 1 == i) {
                     float left = pressColumn * CalendarConfig.CELL_WIDTH;
@@ -113,23 +122,17 @@ public class CalenderItemView extends View {
                     float bottom = (pressRow + 1) * CalendarConfig.CELL_WIDTH;
                     canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
                     CalendarConfig.SELECT_DAY = new DateData(data.year, data.month, data.day);
-                    Log.e("Bill", "::" + CalendarConfig.SELECT_DAY.toString());
+                    clear();
                 }
             } else {
-                int selectDay; // 选中背景
-                if (data.year == today.year && data.month == today.month) {
-                    selectDay = today.day;
-                } else {
-                    selectDay = 1;
-                }
-                if (selectDay == data.day) {
+                DateData selectData = CalendarConfig.SELECT_DAY;
+                if (data.year == selectData.year && data.month == selectData.month && data.day == selectData.day) {
                     float left = column * CalendarConfig.CELL_WIDTH;
                     float top = row * CalendarConfig.CELL_WIDTH;
                     float right = (column + 1) * CalendarConfig.CELL_WIDTH;
                     float bottom = (row + 1) * CalendarConfig.CELL_WIDTH;
                     canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
                     CalendarConfig.SELECT_DAY = new DateData(data.year, data.month, data.day);
-                    Log.e("Bill", "::" + CalendarConfig.SELECT_DAY.toString());
                 }
             }
 
@@ -140,9 +143,11 @@ public class CalenderItemView extends View {
             float bottom = (row+1) * CalendarConfig.CELL_WIDTH;
             canvas.drawOval(left, top, right, bottom, mPaintNormalBg);*/
 
-            x = (CalendarConfig.CELL_WIDTH - textWidth) / 2 + column * CalendarConfig.CELL_WIDTH;
-            y = (CalendarConfig.CELL_WIDTH - fontHeight) / 2 + row * CalendarConfig.CELL_WIDTH + getResources().getDimension(R.dimen.activity_horizontal_margin);
-            canvas.drawText(content, x, y, mPaintNormal);
+            if (data.day > 0) {
+                x = (CalendarConfig.CELL_WIDTH - textWidth) / 2 + column * CalendarConfig.CELL_WIDTH;
+                y = (CalendarConfig.CELL_WIDTH - fontHeight) / 2 + row * CalendarConfig.CELL_WIDTH + getResources().getDimension(R.dimen.activity_horizontal_margin);
+                canvas.drawText(content, x, y, mPaintNormal);
+            }
 
 
         }
