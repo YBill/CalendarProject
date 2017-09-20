@@ -1,7 +1,5 @@
 package com.example.bill.calendarproject;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -125,20 +123,6 @@ public class MonthWeekData {
             }
         }
         return weekList;
-    }
-
-    public void test() {
-        DateData data = CalendarConfig.SELECT_DAY;
-        calendar.set(data.year, data.month - 1, data.day);
-        Log.e("Bill", calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH) + "-" + calendar.get(Calendar.DAY_OF_MONTH));
-        int firstDayWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        Log.e("Bill", "firstDayWeek:" + firstDayWeek);
-        int thisMonthDayNumber = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-        Log.e("Bill", "thisMonthDayNumber:" + thisMonthDayNumber);
-
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        int firstDayWeek2 = calendar.get(Calendar.DAY_OF_WEEK);
-        Log.e("Bill", "firstDayWeek2:" + firstDayWeek2);
     }
 
     /**

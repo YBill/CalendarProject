@@ -2,6 +2,9 @@ package com.example.bill.calendarproject;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,6 +17,9 @@ public class MainActivity extends AppCompatActivity {
     private ImageView image;
     private boolean isShrinking = false;//是否是收缩状态
 
+    private RecyclerView recyclerView;
+    private MyAdapter myAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         yearText = (TextView) findViewById(R.id.tv_year);
         monthText = (TextView) findViewById(R.id.tv_month);
         image = (ImageView) findViewById(R.id.image);
+        recyclerView = (RecyclerView) findViewById(R.id.recycle_view);
 
         calendarView.setMonthScrollListener(new CalendarView.MonthScrollListener() {
             @Override
@@ -46,10 +53,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
+        myAdapter = new MyAdapter(this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        recyclerView.setAdapter(myAdapter);
 
-    public void handleClick(View view) {
-        MonthWeekData.getInstance().test();
+
     }
 
 }
