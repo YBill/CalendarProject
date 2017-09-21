@@ -83,7 +83,7 @@ public class CalenderItemView extends View {
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
             long moveTime = System.currentTimeMillis() - currentMS;
             if (moveTime < 200 && (Math.abs(event.getX() - downX) < 20 && Math.abs(event.getY() - downY) < 20)) {
-                pressRow = (int) (event.getY() / CalendarConfig.CELL_WIDTH);
+                pressRow = (int) (event.getY() / CalendarConfig.CELL_HEIGHT);
                 pressColumn = (int) (event.getX() / CalendarConfig.CELL_WIDTH);
 
                 int selectPosition = 7 * pressRow + pressColumn;
@@ -129,9 +129,9 @@ public class CalenderItemView extends View {
                 int selectPosition = pressRow * 7 + (pressColumn + 1) - 1;
                 if (selectPosition == i) {
                     float left = pressColumn * CalendarConfig.CELL_WIDTH;
-                    float top = pressRow * CalendarConfig.CELL_WIDTH;
+                    float top = pressRow * CalendarConfig.CELL_HEIGHT;
                     float right = (pressColumn + 1) * CalendarConfig.CELL_WIDTH;
-                    float bottom = (pressRow + 1) * CalendarConfig.CELL_WIDTH;
+                    float bottom = (pressRow + 1) * CalendarConfig.CELL_HEIGHT;
                     canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
                     CalendarConfig.SELECT_DAY = new DateData(data.year, data.month, data.day);
                     isPoint = true;
@@ -141,9 +141,9 @@ public class CalenderItemView extends View {
                 DateData selectData = CalendarConfig.SELECT_DAY;
                 if (data.year == selectData.year && data.month == selectData.month && data.day == selectData.day) {
                     float left = column * CalendarConfig.CELL_WIDTH;
-                    float top = row * CalendarConfig.CELL_WIDTH;
+                    float top = row * CalendarConfig.CELL_HEIGHT;
                     float right = (column + 1) * CalendarConfig.CELL_WIDTH;
-                    float bottom = (row + 1) * CalendarConfig.CELL_WIDTH;
+                    float bottom = (row + 1) * CalendarConfig.CELL_HEIGHT;
                     canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
                     CalendarConfig.SELECT_DAY = new DateData(data.year, data.month, data.day);
                     isPoint = true;
@@ -159,7 +159,7 @@ public class CalenderItemView extends View {
 
             if (data.day > 0) {
                 x = (CalendarConfig.CELL_WIDTH - textWidth) / 2 + column * CalendarConfig.CELL_WIDTH;
-                y = (CalendarConfig.CELL_WIDTH - fontHeight) / 2 + row * CalendarConfig.CELL_WIDTH + getResources().getDimension(R.dimen.activity_horizontal_margin);
+                y = (CalendarConfig.CELL_HEIGHT - fontHeight) / 2 + row * CalendarConfig.CELL_HEIGHT + getResources().getDimension(R.dimen.activity_horizontal_margin);
                 if (isPoint) {
                     mPaintNormal.setColor(Color.parseColor("#ffffff"));
                 } else {

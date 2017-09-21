@@ -76,6 +76,7 @@ public class CalendarView extends ViewPager {
         DisplayMetrics dm = resources.getDisplayMetrics();
         int width = dm.widthPixels;
         CalendarConfig.CELL_WIDTH = width / 7;
+        CalendarConfig.CELL_HEIGHT = width / 7;
         CalendarConfig.TODAY = new DateData(
                 Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH) + 1, Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
         CalendarConfig.SELECT_DAY = CalendarConfig.TODAY;
@@ -110,7 +111,7 @@ public class CalendarView extends ViewPager {
         if (CalendarConfig.IS_WEEK) {
             CalendarConfig.IS_WEEK = false;
             CalendarConfig.iSScroll = false;
-            setPagerHeight(CalendarConfig.CELL_WIDTH, CalendarConfig.MONTH_ROW * CalendarConfig.CELL_WIDTH);
+            setPagerHeight(CalendarConfig.CELL_HEIGHT, CalendarConfig.MONTH_ROW * CalendarConfig.CELL_HEIGHT);
             adapter.getCalendarView(currentPosition).setData(MonthWeekData.getInstance().getData(0));
         }
     }
@@ -122,7 +123,7 @@ public class CalendarView extends ViewPager {
         if (!CalendarConfig.IS_WEEK) {
             CalendarConfig.IS_WEEK = true;
             CalendarConfig.iSScroll = false;
-            setPagerHeight(CalendarConfig.MONTH_ROW * CalendarConfig.CELL_WIDTH, CalendarConfig.CELL_WIDTH);
+            setPagerHeight(CalendarConfig.MONTH_ROW * CalendarConfig.CELL_HEIGHT, CalendarConfig.CELL_HEIGHT);
         }
     }
 
@@ -222,9 +223,9 @@ public class CalendarView extends ViewPager {
 
     private int measureHeight() {
         if (CalendarConfig.IS_WEEK)
-            return CalendarConfig.CELL_WIDTH;
+            return CalendarConfig.CELL_HEIGHT;
         else
-            return CalendarConfig.CELL_WIDTH * CalendarConfig.MONTH_ROW;
+            return CalendarConfig.CELL_HEIGHT * CalendarConfig.MONTH_ROW;
     }
 
 }
