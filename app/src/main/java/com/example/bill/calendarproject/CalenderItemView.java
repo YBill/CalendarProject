@@ -44,7 +44,7 @@ public class CalenderItemView extends View {
         mPaintNormal.setTextSize(getResources().getDimension(R.dimen.si_default_text_size));
 
         mPaintSelectBg = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaintSelectBg.setColor(Color.parseColor("#ff4259"));
+        mPaintSelectBg.setColor(Color.parseColor("#FF4259"));
 
         clear();
     }
@@ -168,7 +168,7 @@ public class CalenderItemView extends View {
                         if (data.day == todayData.day) {
                             mPaintNormal.setColor(Color.parseColor("#ff4259"));
                         } else if (data.day > todayData.day) {
-                            mPaintNormal.setColor(Color.parseColor("#dcdcdc"));
+                            mPaintNormal.setColor(Color.parseColor("#9B9B9B"));
                         } else {
                             mPaintNormal.setColor(Color.parseColor("#000000"));
                         }
