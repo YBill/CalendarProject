@@ -21,8 +21,8 @@ public class CalenderItemView extends View {
     private List<DateData> list = new ArrayList<>();
 
     private Paint mPaintNormal;
-    private Paint mPaintNormalBg;
     private Paint mPaintSelectBg;
+    private boolean isPoint;// 是不是选中的焦点
 
     public CalenderItemView(Context context) {
         super(context);
@@ -41,11 +41,7 @@ public class CalenderItemView extends View {
 
     private void init(Context context) {
         mPaintNormal = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaintNormal.setColor(Color.parseColor("#000000"));//dcdcdc
         mPaintNormal.setTextSize(getResources().getDimension(R.dimen.si_default_text_size));
-
-        mPaintNormalBg = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaintNormalBg.setColor(Color.RED);
 
         mPaintSelectBg = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaintSelectBg.setColor(Color.parseColor("#ff4259"));
@@ -59,6 +55,12 @@ public class CalenderItemView extends View {
             this.list = list;
             invalidate();
         }
+    }
+
+    private MonthListener monthListener;
+
+    public void setMonthListener(MonthListener monthListener) {
+        this.monthListener = monthListener;
     }
 
     int downX;
@@ -83,10 +85,19 @@ public class CalenderItemView extends View {
             if (moveTime < 200 && (Math.abs(event.getX() - downX) < 20 && Math.abs(event.getY() - downY) < 20)) {
                 pressRow = (int) (event.getY() / CalendarConfig.CELL_WIDTH);
                 pressColumn = (int) (event.getX() / CalendarConfig.CELL_WIDTH);
-                if ((7 * pressRow + pressColumn + 1 - list.size() > 0) || (list.get(7 * pressRow + pressColumn).day == 0)) {
+
+                int selectPosition = 7 * pressRow + pressColumn;
+                if ((selectPosition + 1 - list.size() > 0) || (list.get(selectPosition).day == 0)) {
                     clear();
                 } else {
-                    invalidate();
+                    DateData todayData = CalendarConfig.TODAY;
+                    DateData dateData = list.get(selectPosition);
+
+                    if (dateData.year != todayData.year || dateData.month != todayData.month || dateData.day <= todayData.day) {
+                        invalidate();
+                        if (monthListener != null)
+                            monthListener.clickDay(dateData.year, dateData.month, dateData.day);
+                    } else clear();
                 }
             }
         }
@@ -113,15 +124,17 @@ public class CalenderItemView extends View {
                 column = 0;
             }
 
+            isPoint = false;
             if (pressRow >= 0 && pressColumn >= 0) {
-                int selectDay = pressRow * 7 + (pressColumn + 1);
-                if (selectDay - 1 == i) {
+                int selectPosition = pressRow * 7 + (pressColumn + 1) - 1;
+                if (selectPosition == i) {
                     float left = pressColumn * CalendarConfig.CELL_WIDTH;
                     float top = pressRow * CalendarConfig.CELL_WIDTH;
                     float right = (pressColumn + 1) * CalendarConfig.CELL_WIDTH;
                     float bottom = (pressRow + 1) * CalendarConfig.CELL_WIDTH;
                     canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
                     CalendarConfig.SELECT_DAY = new DateData(data.year, data.month, data.day);
+                    isPoint = true;
                     clear();
                 }
             } else {
@@ -133,6 +146,7 @@ public class CalenderItemView extends View {
                     float bottom = (row + 1) * CalendarConfig.CELL_WIDTH;
                     canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
                     CalendarConfig.SELECT_DAY = new DateData(data.year, data.month, data.day);
+                    isPoint = true;
                 }
             }
 
@@ -146,6 +160,22 @@ public class CalenderItemView extends View {
             if (data.day > 0) {
                 x = (CalendarConfig.CELL_WIDTH - textWidth) / 2 + column * CalendarConfig.CELL_WIDTH;
                 y = (CalendarConfig.CELL_WIDTH - fontHeight) / 2 + row * CalendarConfig.CELL_WIDTH + getResources().getDimension(R.dimen.activity_horizontal_margin);
+                if (isPoint) {
+                    mPaintNormal.setColor(Color.parseColor("#ffffff"));
+                } else {
+                    DateData todayData = CalendarConfig.TODAY;
+                    if (data.year == todayData.year && data.month == todayData.month) {
+                        if (data.day == todayData.day) {
+                            mPaintNormal.setColor(Color.parseColor("#ff4259"));
+                        } else if (data.day > todayData.day) {
+                            mPaintNormal.setColor(Color.parseColor("#dcdcdc"));
+                        } else {
+                            mPaintNormal.setColor(Color.parseColor("#000000"));
+                        }
+                    } else {
+                        mPaintNormal.setColor(Color.parseColor("#000000"));
+                    }
+                }
                 canvas.drawText(content, x, y, mPaintNormal);
             }
 

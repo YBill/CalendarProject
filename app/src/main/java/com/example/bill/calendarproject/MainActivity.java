@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,11 +31,17 @@ public class MainActivity extends AppCompatActivity {
         image = (ImageView) findViewById(R.id.image);
         recyclerView = (RecyclerView) findViewById(R.id.recycle_view);
 
-        calendarView.setMonthScrollListener(new CalendarView.MonthScrollListener() {
+        calendarView.setMonthListener(new MonthListener() {
             @Override
-            public void onMonthChange(int year, int month) {
+            public void scrollMonth(int year, int month) {
                 yearText.setText(year + "年");
                 monthText.setText(month + "月");
+                Log.e("Bill", year + "-" + month);
+            }
+
+            @Override
+            public void clickDay(int year, int month, int day) {
+                Log.e("Bill", year + "-" + month + "-" + day);
             }
         });
 

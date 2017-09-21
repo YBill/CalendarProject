@@ -44,6 +44,34 @@ public class CalendarView extends ViewPager {
 
     private void init(final FragmentActivity activity) {
         this.activity = activity;
+
+        initCalendarConfig();
+
+        adapter = new CalendarViewAdapter(activity);
+        this.setAdapter(adapter);
+        currentPosition = CalendarConfig.COUNT / 2;
+        setCurrentItem(currentPosition, false);
+
+        setCalendarData(currentPosition);
+
+        this.addOnPageChangeListener(new SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(final int position) {
+                if (position > currentPosition) {
+                    diffPosition = 1;
+                } else {
+                    diffPosition = -1;
+                }
+                currentPosition = position;
+                setData(position);
+                if (monthListener != null) {
+                    monthListener.scrollMonth(CalendarConfig.SELECT_MONTH.year, CalendarConfig.SELECT_MONTH.month);
+                }
+            }
+        });
+    }
+
+    private void initCalendarConfig() {
         Resources resources = activity.getResources();
         DisplayMetrics dm = resources.getDisplayMetrics();
         int width = dm.widthPixels;
@@ -53,68 +81,23 @@ public class CalendarView extends ViewPager {
         CalendarConfig.SELECT_DAY = CalendarConfig.TODAY;
         CalendarConfig.SELECT_MONTH = CalendarConfig.TODAY;
         CalendarConfig.IS_WEEK = false;
-
-        adapter = new CalendarViewAdapter(activity);
-        this.setAdapter(adapter);
-        currentPosition = CalendarConfig.COUNT / 2;
-        setCurrentItem(currentPosition, false);
-
-        CalendarConfig.iSScroll = false;
-        dateDataList = MonthWeekData.getInstance().getData(0);
-        setCalendarData(currentPosition);
-        setCallback();
-
-        this.addOnPageChangeListener(new OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(final int position) {
-                if (position > currentPosition) {
-                    diffPosition = 1;
-                } else {
-                    diffPosition = -1;
-                }
-                currentPosition = position;
-                CalendarConfig.iSScroll = true;
-                dateDataList = MonthWeekData.getInstance().getData(diffPosition);
-                adapter.getCalendarView(position).setData(dateDataList);
-                if (monthScrollListener != null) {
-                    monthScrollListener.onMonthChange(CalendarConfig.SELECT_MONTH.year, CalendarConfig.SELECT_MONTH.month);
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
     }
 
-    // 为日历设置数据
+    private void setData(int position) {
+        CalendarConfig.iSScroll = true;
+        dateDataList = MonthWeekData.getInstance().getData(diffPosition);
+        adapter.getCalendarView(position).setData(dateDataList);
+        adapter.getCalendarView(position).setMonthListener(monthListener);
+    }
+
     private void setCalendarData(final int position) {
         if (adapter.getCalendarView(position) != null) {
-            adapter.getCalendarView(position).setData(dateDataList);
+            setData(position);
         } else {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     setCalendarData(position);
-                }
-            }, 50);
-        }
-    }
-
-    private void setCallback() {
-        if (monthScrollListener != null) {
-            monthScrollListener.onMonthChange(CalendarConfig.SELECT_MONTH.year, CalendarConfig.SELECT_MONTH.month);
-        } else {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    setCallback();
                 }
             }, 50);
         }
@@ -163,21 +146,21 @@ public class CalendarView extends ViewPager {
                 super.onAnimationEnd(animation);
                 if (CalendarConfig.IS_WEEK)
                     adapter.getCalendarView(currentPosition).setData(MonthWeekData.getInstance().getData(0));
-                if (monthScrollListener != null) {
-                    monthScrollListener.onMonthChange(CalendarConfig.SELECT_MONTH.year, CalendarConfig.SELECT_MONTH.month);
+                if (monthListener != null) {
+                    monthListener.scrollMonth(CalendarConfig.SELECT_MONTH.year, CalendarConfig.SELECT_MONTH.month);
                 }
             }
         });
     }
 
-    private MonthScrollListener monthScrollListener;
+    private MonthListener monthListener;
 
-    public void setMonthScrollListener(MonthScrollListener monthScrollListener) {
-        this.monthScrollListener = monthScrollListener;
-    }
-
-    public interface MonthScrollListener {
-        void onMonthChange(int year, int month);
+    public void setMonthListener(MonthListener monthListener) {
+        this.monthListener = monthListener;
+        if (monthListener != null) {
+            monthListener.scrollMonth(CalendarConfig.SELECT_MONTH.year, CalendarConfig.SELECT_MONTH.month);
+            monthListener.clickDay(CalendarConfig.SELECT_DAY.year, CalendarConfig.SELECT_DAY.month, CalendarConfig.SELECT_DAY.day);
+        }
     }
 
     private float beforeX;
