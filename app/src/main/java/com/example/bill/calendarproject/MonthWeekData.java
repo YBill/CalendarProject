@@ -58,7 +58,7 @@ public class MonthWeekData {
             calendar.set(selectData.year, selectData.month - 1, selectData.day);
 
             CalendarConfig.SELECT_MONTH = new DateData(
-                    Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH) + 1, 0);
+                    calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, 0);
 
             calendar.set(Calendar.DAY_OF_MONTH, 1);
             int firstDayWeek = calendar.get(Calendar.DAY_OF_WEEK);
@@ -85,6 +85,8 @@ public class MonthWeekData {
         weekList.clear();
         DateData selectData = CalendarConfig.SELECT_DAY;
         calendar.set(selectData.year, selectData.month - 1, selectData.day);
+        CalendarConfig.SELECT_MONTH = new DateData(
+                calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, 0);
         int thisMonthDayNumber = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
         int thisDayWeek = calendar.get(Calendar.DAY_OF_WEEK);
         int firstDay = selectData.day - thisDayWeek + 1;

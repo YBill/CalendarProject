@@ -1,5 +1,8 @@
 package com.example.bill.calendarproject;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Handler;
@@ -7,8 +10,8 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
 
 import java.util.Calendar;
 import java.util.List;
@@ -69,7 +72,6 @@ public class CalendarView extends ViewPager {
 
             @Override
             public void onPageSelected(final int position) {
-                Log.e("Bill", "position:" + position);
                 if (position > currentPosition) {
                     diffPosition = 1;
                 } else {
@@ -118,18 +120,54 @@ public class CalendarView extends ViewPager {
         }
     }
 
+    /**
+     * 展开
+     */
     public void expand() {
-        CalendarConfig.IS_WEEK = false;
-        CalendarConfig.iSScroll = false;
-        this.requestLayout();
-        adapter.getCalendarView(currentPosition).setData(MonthWeekData.getInstance().getData(0));
+        if (CalendarConfig.IS_WEEK) {
+            CalendarConfig.IS_WEEK = false;
+            CalendarConfig.iSScroll = false;
+            setPagerHeight(CalendarConfig.CELL_WIDTH, CalendarConfig.MONTH_ROW * CalendarConfig.CELL_WIDTH);
+            adapter.getCalendarView(currentPosition).setData(MonthWeekData.getInstance().getData(0));
+        }
     }
 
+    /**
+     * 折叠
+     */
     public void shrink() {
-        CalendarConfig.IS_WEEK = true;
-        CalendarConfig.iSScroll = false;
-        this.requestLayout();
-        adapter.getCalendarView(currentPosition).setData(MonthWeekData.getInstance().getData(0));
+        if (!CalendarConfig.IS_WEEK) {
+            CalendarConfig.IS_WEEK = true;
+            CalendarConfig.iSScroll = false;
+            setPagerHeight(CalendarConfig.MONTH_ROW * CalendarConfig.CELL_WIDTH, CalendarConfig.CELL_WIDTH);
+        }
+    }
+
+    private void setPagerHeight(int startHeight, int endHeight) {
+        final ViewGroup.LayoutParams params = this.getLayoutParams();
+        ValueAnimator animator = ValueAnimator.ofInt(startHeight, endHeight);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int value = (Integer) animation.getAnimatedValue();
+                params.height = value;
+                setLayoutParams(params);
+            }
+        });
+        animator.setDuration(200);
+        animator.start();
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                if (CalendarConfig.IS_WEEK)
+                    adapter.getCalendarView(currentPosition).setData(MonthWeekData.getInstance().getData(0));
+                if (monthScrollListener != null) {
+                    monthScrollListener.onMonthChange(CalendarConfig.SELECT_MONTH.year, CalendarConfig.SELECT_MONTH.month);
+                }
+            }
+        });
     }
 
     private MonthScrollListener monthScrollListener;
@@ -143,25 +181,46 @@ public class CalendarView extends ViewPager {
     }
 
     private float beforeX;
+    private float beforeY;
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if(CalendarConfig.IS_WEEK) {
-            return true;
-        }
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 beforeX = ev.getX();
+                beforeY = ev.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
-                float motionValue = ev.getX() - beforeX;
-                if (motionValue < 0) { // 左滑
-                    DateData selectData = CalendarConfig.SELECT_MONTH;
-                    DateData today = CalendarConfig.TODAY;
-                    if (selectData.year == today.year && selectData.month == today.month)
-                        return true;
+                float motionXValue = ev.getX() - beforeX;
+                float motionYValue = ev.getY() - beforeY;
+                double degree = Math.atan2(Math.abs(motionYValue), Math.abs(motionXValue));
+                if ((degree * 180 / Math.PI) > 60) {
+                    if (motionYValue < 0) {
+                        // 上滑
+                        shrink();
+                    } else {
+                        // 下滑
+                        expand();
+                    }
+                } else {
+                    if (motionXValue < 0) {
+                        // 左滑
+                        if (CalendarConfig.IS_WEEK) {
+                            return true;
+                        }
+                        DateData selectData = CalendarConfig.SELECT_MONTH;
+                        DateData today = CalendarConfig.TODAY;
+                        if (selectData.year == today.year && selectData.month == today.month)
+                            return true;
+                    } else {
+                        // 右滑
+                        if (CalendarConfig.IS_WEEK) {
+                            return true;
+                        }
+                    }
                 }
                 beforeX = ev.getX();
+                beforeY = ev.getY();
                 break;
             default:
                 break;
@@ -171,8 +230,10 @@ public class CalendarView extends ViewPager {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int height = measureHeight();
-        heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+        if (CalendarConfig.iSScroll) {
+            int height = measureHeight();
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+        }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
