@@ -3,12 +3,13 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:background="#ffffff"
               android:orientation="vertical"
               tools:context="com.example.bill.calendarproject.MainActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
         android:background="#ffffff">
 
         <TextView
@@ -17,8 +18,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:textSize="20sp"/>
+            android:layout_marginLeft="20dp"
+            android:textColor="#4A4A4A"
+            android:textSize="17sp"/>
 
         <TextView
             android:id="@+id/tv_month"
@@ -26,8 +28,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_centerVertical="true"
-            android:textColor="#ff0000"
-            android:textSize="20sp"/>
+            android:textColor="#FF4259"
+            android:textSize="17sp"/>
 
         <ImageView
             android:id="@+id/image"
@@ -45,6 +47,9 @@
         android:layout_height="wrap_content"
         android:background="#ffffff"/>
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
 
     <com.example.bill.calendarproject.CalendarView
         android:id="@+id/calendar_view"
@@ -52,8 +57,13 @@
         android:layout_height="wrap_content"
         android:background="#ffffff"/>
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycle_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:background="#ECECEC"/>
 </LinearLayout>

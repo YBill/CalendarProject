@@ -94,6 +94,7 @@ public class CalendarView extends ViewPager {
     private void setCalendarData(final int position) {
         if (adapter.getCalendarView(position) != null) {
             setData(position);
+            this.requestLayout();
         } else {
             new Handler().postDelayed(new Runnable() {
                 @Override
