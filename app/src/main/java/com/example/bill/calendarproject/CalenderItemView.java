@@ -22,7 +22,9 @@ public class CalenderItemView extends View {
 
     private Paint mPaintNormal;
     private Paint mPaintSelectBg;
+    private Paint mPaintMarkBg;
     private boolean isPoint;// 是不是选中的焦点
+    private List<DateData> monthMarkList = new ArrayList<>();
 
     public CalenderItemView(Context context) {
         super(context);
@@ -46,6 +48,9 @@ public class CalenderItemView extends View {
         mPaintSelectBg = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaintSelectBg.setColor(Color.parseColor("#FF4259"));
 
+        mPaintMarkBg = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaintMarkBg.setColor(Color.parseColor("#999999"));
+
         clear();
     }
 
@@ -53,6 +58,16 @@ public class CalenderItemView extends View {
         if (list != null) {
             clear();
             this.list = list;
+
+            monthMarkList.clear();
+            if (CalendarConfig.MARK_DAY_LIST != null) {
+                for (DateData markData : CalendarConfig.MARK_DAY_LIST) {
+                    if (CalendarConfig.SELECT_MONTH.year == markData.year && CalendarConfig.SELECT_MONTH.month == markData.month) {
+                        monthMarkList.add(markData);
+                    }
+                }
+            }
+
             invalidate();
         }
     }
@@ -163,6 +178,16 @@ public class CalenderItemView extends View {
                 if (isPoint) {
                     mPaintNormal.setColor(Color.parseColor("#ffffff"));
                 } else {
+                    for (DateData dateData : monthMarkList) {
+                        if (dateData.day == data.day) {
+                            float left = column * CalendarConfig.CELL_WIDTH;
+                            float top = row * CalendarConfig.CELL_WIDTH;
+                            float right = (column + 1) * CalendarConfig.CELL_WIDTH;
+                            float bottom = (row + 1) * CalendarConfig.CELL_WIDTH;
+                            canvas.drawOval(left, top, right, bottom, mPaintMarkBg);
+                        }
+                    }
+
                     DateData todayData = CalendarConfig.TODAY;
                     if (data.year == todayData.year && data.month == todayData.month) {
                         if (data.day == todayData.day) {
