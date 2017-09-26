@@ -14,6 +14,7 @@ public class CalendarConfig {
     public static DateData TODAY; // 今天
     public static DateData SELECT_DAY; // 当前焦点位置
     public static DateData SELECT_MONTH; // 当前选中的月
+    public static List<DateData> SELECT_WEEK; // 当前选中的周
     public static List<DateData> MARK_DAY_LIST; // 需要标记的天
     public static boolean iSScroll; // 是否是滑动
 }

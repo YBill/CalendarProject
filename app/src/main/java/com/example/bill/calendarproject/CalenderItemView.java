@@ -160,7 +160,6 @@ public class CalenderItemView extends View {
                     float right = (column + 1) * CalendarConfig.CELL_WIDTH;
                     float bottom = (row + 1) * CalendarConfig.CELL_HEIGHT;
                     canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
-                    CalendarConfig.SELECT_DAY = new DateData(data.year, data.month, data.day);
                     isPoint = true;
                 }
             }

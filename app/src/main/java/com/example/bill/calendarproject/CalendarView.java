@@ -27,6 +27,7 @@ public class CalendarView extends ViewPager {
     private List<DateData> dateDataList;
     private int currentPosition;
     private int diffPosition = 0;
+    private boolean isFirstLoad = true;
 
     public CalendarView(Context context) {
         super(context);
@@ -63,6 +64,7 @@ public class CalendarView extends ViewPager {
                     diffPosition = -1;
                 }
                 currentPosition = position;
+                CalendarConfig.iSScroll = true;
                 setData(position);
                 if (monthListener != null) {
                     monthListener.scrollMonth(CalendarConfig.SELECT_MONTH.year, CalendarConfig.SELECT_MONTH.month);
@@ -81,11 +83,11 @@ public class CalendarView extends ViewPager {
                 Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH) + 1, Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
         CalendarConfig.SELECT_DAY = CalendarConfig.TODAY;
         CalendarConfig.SELECT_MONTH = CalendarConfig.TODAY;
-        CalendarConfig.IS_WEEK = false;
+        CalendarConfig.IS_WEEK = true;
+        CalendarConfig.iSScroll = false;
     }
 
     private void setData(int position) {
-        CalendarConfig.iSScroll = true;
         dateDataList = MonthWeekData.getInstance().getData(diffPosition);
         adapter.getCalendarView(position).setData(dateDataList);
         adapter.getCalendarView(position).setMonthListener(monthListener);
@@ -110,10 +112,12 @@ public class CalendarView extends ViewPager {
      */
     public void expand() {
         if (CalendarConfig.IS_WEEK) {
+            isFirstLoad = false;
             CalendarConfig.IS_WEEK = false;
             CalendarConfig.iSScroll = false;
+            List<DateData> list = MonthWeekData.getInstance().getData(0);
             setPagerHeight(CalendarConfig.CELL_HEIGHT, CalendarConfig.MONTH_ROW * CalendarConfig.CELL_HEIGHT);
-            adapter.getCalendarView(currentPosition).setData(MonthWeekData.getInstance().getData(0));
+            adapter.getCalendarView(currentPosition).setData(list);
         }
     }
 
@@ -122,6 +126,7 @@ public class CalendarView extends ViewPager {
      */
     public void shrink() {
         if (!CalendarConfig.IS_WEEK) {
+            isFirstLoad = false;
             CalendarConfig.IS_WEEK = true;
             CalendarConfig.iSScroll = false;
             setPagerHeight(CalendarConfig.MONTH_ROW * CalendarConfig.CELL_HEIGHT, CalendarConfig.CELL_HEIGHT);
@@ -191,16 +196,31 @@ public class CalendarView extends ViewPager {
                     if (motionXValue < 0) {
                         // 左滑
                         if (CalendarConfig.IS_WEEK) {
-                            return true;
+                            List<DateData> dateDataList = CalendarConfig.SELECT_WEEK;
+                            if (dateDataList != null) {
+                                DateData today = CalendarConfig.TODAY;
+                                boolean hasDay = false;
+                                for (DateData dateData : dateDataList) {
+                                    if (dateData.year == today.year && dateData.month == today.month && dateData.day == today.day) {
+                                        hasDay = true;
+                                        break;
+                                    }
+                                }
+                                if (hasDay)
+                                    return true;
+                            }
+                        } else {
+                            DateData selectData = CalendarConfig.SELECT_MONTH;
+                            DateData today = CalendarConfig.TODAY;
+                            if (selectData.year == today.year && selectData.month == today.month)
+                                return true;
                         }
-                        DateData selectData = CalendarConfig.SELECT_MONTH;
-                        DateData today = CalendarConfig.TODAY;
-                        if (selectData.year == today.year && selectData.month == today.month)
-                            return true;
                     } else {
                         // 右滑
                         if (CalendarConfig.IS_WEEK) {
-                            return true;
+
+                        } else {
+
                         }
                     }
                 }
@@ -215,7 +235,7 @@ public class CalendarView extends ViewPager {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (CalendarConfig.iSScroll) {
+        if (CalendarConfig.iSScroll || isFirstLoad) {
             int height = measureHeight();
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
         }
@@ -223,9 +243,9 @@ public class CalendarView extends ViewPager {
     }
 
     private int measureHeight() {
-        if (CalendarConfig.IS_WEEK)
+        if (CalendarConfig.IS_WEEK) {
             return CalendarConfig.CELL_HEIGHT;
-        else
+        } else
             return CalendarConfig.CELL_HEIGHT * CalendarConfig.MONTH_ROW;
     }
 
