@@ -16,6 +16,24 @@ import java.util.List;
  * Created by Bill on 2017/9/17.
  */
 
+
+// ┏┓　　　┏┓
+// ┏┛┻━━━┛┻┓
+// ┃　　　　　　　┃ 　
+// ┃　　　━　　　┃
+// ┃　┳┛　┗┳　┃
+// ┃　　　　　　　┃
+// ┃　　　┻　　　┃
+// ┃　　　　　　　┃
+// ┗━┓　　　┏━┛
+// ┃　　　┃ 神兽保佑　　　　　　　　
+// ┃　　　┃ 代码无BUG！
+// ┃　　　┗━━━┓
+// ┃　　　　　　　┣┓
+// ┃　　　　　　　┏┛
+// ┗┓┓┏━┳┓┏┛
+// ┃┫┫　┃┫┫
+// ┗┻┛　┗┻┛
 public class CalenderItemView extends View {
 
     private List<DateData> list = new ArrayList<>();
