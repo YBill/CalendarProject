@@ -147,7 +147,8 @@ public class CalenderItemView extends View {
                     float top = pressRow * CalendarConfig.CELL_HEIGHT;
                     float right = (pressColumn + 1) * CalendarConfig.CELL_WIDTH;
                     float bottom = (pressRow + 1) * CalendarConfig.CELL_HEIGHT;
-                    canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
+//                    canvas.drawOval(left, top, right, bottom, mPaintSelectBg); // drawOval 支持API21 以上
+                    canvas.drawCircle(left + (right - left) / 2, top + (bottom - top) / 2, (bottom - top) / 2, mPaintSelectBg);
                     CalendarConfig.SELECT_DAY = new DateData(data.year, data.month, data.day);
                     isPoint = true;
                     clear();
@@ -159,7 +160,8 @@ public class CalenderItemView extends View {
                     float top = row * CalendarConfig.CELL_HEIGHT;
                     float right = (column + 1) * CalendarConfig.CELL_WIDTH;
                     float bottom = (row + 1) * CalendarConfig.CELL_HEIGHT;
-                    canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
+//                    canvas.drawOval(left, top, right, bottom, mPaintSelectBg);
+                    canvas.drawCircle(left + (right - left) / 2, top + (bottom - top) / 2, (bottom - top) / 2, mPaintSelectBg);
                     isPoint = true;
                 }
             }
@@ -183,7 +185,8 @@ public class CalenderItemView extends View {
                             float top = row * CalendarConfig.CELL_WIDTH;
                             float right = (column + 1) * CalendarConfig.CELL_WIDTH;
                             float bottom = (row + 1) * CalendarConfig.CELL_WIDTH;
-                            canvas.drawOval(left, top, right, bottom, mPaintMarkBg);
+//                            canvas.drawOval(left, top, right, bottom, mPaintMarkBg);
+                            canvas.drawCircle(left + (right - left) / 2, top + (bottom - top) / 2, (bottom - top) / 2, mPaintMarkBg);
                         }
                     }
 
