@@ -22,7 +22,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     public MyAdapter(Context context) {
         this.context = context;
         for (int i = 0; i < 20; i++) {
-            list.add("Hello World!" + i);
+            list.add("Hello World!" + (i+1));
         }
     }
 
